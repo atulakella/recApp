@@ -1,0 +1,4 @@
+timestamp,text
+00:00:01,'Hello, how are you?'
+00:00:03,'This is a sample speech-to-text output.'
+00:00:05,'It will be displayed in a text box.'
