@@ -1,187 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time EEG and Speech Data</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #231630;
-            color: #F0EEE9;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        h1 {
-            color: #F84BAE;
-        }
-        .container {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .chart-container, .text-container {
-            background-color: #F0EEE9;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .text-container {
-            width: 400px;
-            height: 300px;
-            overflow-y: auto;
-            color: #231630;
-        }
-        canvas {
-            width: 600px !important;
-            height: 300px !important;
-        }
-        .controls {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #5A73EE;
-            color: #F0EEE9;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #F84BAE;
-        }
-        #saveButton:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CogniLift - Real-Time EEG and Speech Data</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #231630;
+      color: #F0EEE9;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* White, center aligned navbar that spans 70% of the page */
+    .navbar {
+      background-color: #ffffff;
+      width: 70%;
+      margin: 20px auto;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease-out;
+      border-radius: 8px;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-brand img {
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .navbar-brand span {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #F84BAE;
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .navbar-links a {
+      color: #231630;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .navbar-links a:hover {
+      background-color: #F0EEE9;
+      transform: scale(1.05);
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #F84BAE, #5A73EE);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(135deg, #5A73EE, #F84BAE);
+      transform: scale(1.05);
+    }
+
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      color: #F84BAE;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .chart-container, .text-container {
+      background-color: #F0EEE9;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .text-container {
+      width: 400px;
+      height: 300px;
+      overflow-y: auto;
+      color: #231630;
+    }
+
+    canvas {
+      width: 600px !important;
+      height: 300px !important;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #5A73EE;
+      color: #F0EEE9;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #F84BAE;
+    }
+
+    #saveButton:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="CogniLift Logo">
+      <span>CogniLift</span>
+    </div>
+    <div class="navbar-links">
+      <a href="#">Home</a>
+      <a href="#">Dashboard</a>
+      <a href="#">Reports</a>
+      <a href="#">Settings</a>
+    </div>
+    <button class="login-btn">Login</button>
+  </nav>
+
+  <div class="content">
     <h1>Real-Time EEG and Speech Data</h1>
     <div class="container">
-        <div class="chart-container">
-            <canvas id="eegChart"></canvas>
-        </div>
-        <div class="text-container">
-            <h3>Speech-to-Text Output</h3>
-            <div id="speechText"></div>
-        </div>
+      <div class="chart-container">
+        <canvas id="eegChart"></canvas>
+      </div>
+      <div class="text-container">
+        <h3>Speech-to-Text Output</h3>
+        <div id="speechText"></div>
+      </div>
     </div>
 
     <div class="controls">
-        <button id="recordButton" class="btn" onclick="toggleRecording()">Start Recording</button>
-        <button id="saveButton" class="btn" onclick="saveTranscription()" disabled>Save Transcription</button>
+      <button id="recordButton" class="btn" onclick="toggleRecording()">Start Recording</button>
+      <button id="saveButton" class="btn" onclick="saveTranscription()" disabled>Save Transcription</button>
     </div>
+  </div>
 
-    <script>
-        // Initialize Chart.js for EEG data
-        const ctx = document.getElementById('eegChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'EEG Value',
-                    data: [],
-                    borderColor: '#F84BAE',
-                    backgroundColor: '#5A73EE',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: false,
-                scales: {
-                    x: {
-                        grid: { color: '#C47300' },
-                        ticks: { color: '#231630' }
-                    },
-                    y: {
-                        beginAtZero: false,
-                        grid: { color: '#C47300' },
-                        ticks: { color: '#231630' }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: { color: '#231630' }
-                    }
-                }
-            }
-        });
-
-        // SSE connections
-        const eegEventSource = new EventSource('/eeg_stream');
-        const speechEventSource = new EventSource('/live_transcripts');
-        const speechTextElement = document.getElementById('speechText');
-
-        // Recording controls
-        let isRecording = false;
-
-        eegEventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            chart.data.labels.push(data.time);
-            chart.data.datasets[0].data.push(parseFloat(data.value));
-
-            if (chart.data.labels.length > 20) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-            }
-            chart.update();
-        };
-
-        speechEventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            const speechEntry = document.createElement('p');
-            speechEntry.textContent = `[${data.time}] ${data.text}`;
-            speechTextElement.appendChild(speechEntry);
-            speechTextElement.scrollTop = speechTextElement.scrollHeight;
-        };
-
-        function toggleRecording() {
-            const button = document.getElementById('recordButton');
-            const saveButton = document.getElementById('saveButton');
-            
-            if (!isRecording) {
-                button.textContent = 'Stop Recording';
-                button.style.backgroundColor = '#F84BAE';
-                saveButton.disabled = true;
-                fetch('/start_listening', { method: 'POST' });
-                isRecording = true;
-            } else {
-                button.textContent = 'Start Recording';
-                button.style.backgroundColor = '#5A73EE';
-                saveButton.disabled = false;
-                fetch('/stop_listening', { method: 'POST' });
-                isRecording = false;
-            }
+  <script>
+    // Initialize Chart.js for EEG data
+    const ctx = document.getElementById('eegChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'EEG Value',
+          data: [],
+          borderColor: '#F84BAE',
+          backgroundColor: '#5A73EE',
+          borderWidth: 2,
+          fill: false
+        }]
+      },
+      options: {
+        responsive: false,
+        scales: {
+          x: {
+            grid: { color: '#C47300' },
+            ticks: { color: '#231630' }
+          },
+          y: {
+            beginAtZero: false,
+            grid: { color: '#C47300' },
+            ticks: { color: '#231630' }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#231630' }
+          }
         }
+      }
+    });
 
-        async function saveTranscription() {
-            try {
-                const response = await fetch('/save_transcription');
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `recording_${new Date().toISOString().slice(0,16)}.csv`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }
-            } catch (error) {
-                console.error('Error saving transcription:', error);
-            }
+    // SSE connections
+    const eegEventSource = new EventSource('/eeg_stream');
+    const speechEventSource = new EventSource('/live_transcripts');
+    const speechTextElement = document.getElementById('speechText');
+
+    // Recording controls
+    let isRecording = false;
+
+    eegEventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      chart.data.labels.push(data.time);
+      chart.data.datasets[0].data.push(parseFloat(data.value));
+
+      if (chart.data.labels.length > 20) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      chart.update();
+    };
+
+    speechEventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const speechEntry = document.createElement('p');
+      speechEntry.textContent = `[${data.time}] ${data.text}`;
+      speechTextElement.appendChild(speechEntry);
+      speechTextElement.scrollTop = speechTextElement.scrollHeight;
+    };
+
+    function toggleRecording() {
+      const button = document.getElementById('recordButton');
+      const saveButton = document.getElementById('saveButton');
+      
+      if (!isRecording) {
+        button.textContent = 'Stop Recording';
+        button.style.backgroundColor = '#F84BAE';
+        saveButton.disabled = true;
+        fetch('/start_listening', { method: 'POST' });
+        isRecording = true;
+      } else {
+        button.textContent = 'Start Recording';
+        button.style.backgroundColor = '#5A73EE';
+        saveButton.disabled = false;
+        fetch('/stop_listening', { method: 'POST' });
+        isRecording = false;
+      }
+    }
+
+    async function saveTranscription() {
+      try {
+        const response = await fetch('/save_transcription');
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `recording_${new Date().toISOString().slice(0,16)}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
         }
-    </script>
+      } catch (error) {
+        console.error('Error saving transcription:', error);
+      }
+    }
+  </script>
 </body>
 </html>
