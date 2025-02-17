@@ -12,7 +12,7 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: Trebuchet MS, sans-serif;
       background-color: #231630;
       color: #F0EEE9;
       margin: 0;
@@ -60,10 +60,12 @@
       padding: 5px 10px;
       border-radius: 5px;
       transition: background-color 0.3s, transform 0.3s;
+      background: linear-gradient(135deg, #F84BAE, #5A73EE);
+      color: #ffffff;
     }
 
     .navbar-links a:hover {
-      background-color: #F0EEE9;
+      background: linear-gradient(135deg, #5A73EE, #F84BAE);
       transform: scale(1.05);
     }
 
@@ -105,6 +107,7 @@
       background-color: #F0EEE9;
       border-radius: 10px;
       padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .text-container {
@@ -152,12 +155,9 @@
       <span>CogniLift</span>
     </div>
     <div class="navbar-links">
-      <a href="#">Home</a>
-      <a href="#">Dashboard</a>
-      <a href="#">Reports</a>
-      <a href="#">Settings</a>
+      <a href="http://127.0.0.1:8050/dashboard">Home</a>
+      <a href="http://127.0.0.1:5000">Live Analysis</a>
     </div>
-    <button class="login-btn">Login</button>
   </nav>
 
   <div class="content">
@@ -246,7 +246,7 @@
     function toggleRecording() {
       const button = document.getElementById('recordButton');
       const saveButton = document.getElementById('saveButton');
-      
+
       if (!isRecording) {
         button.textContent = 'Stop Recording';
         button.style.backgroundColor = '#F84BAE';
