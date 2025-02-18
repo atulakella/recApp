@@ -47,7 +47,7 @@ try:
             print("No data received.")
 
         # Wait for 2 seconds before next read
-        time.sleep(2)
+        time.sleep(0.405)
 except KeyboardInterrupt:
     print("\nExiting program.")
 finally:
